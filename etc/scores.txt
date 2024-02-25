@@ -1,0 +1,50 @@
+# scores
+xxxxxxxxxxxx # 300
+# comment
+x x x x x x x x x x x x # 300
+
+xxxxxxxxxxxxxx # 300 + alpha
+
+9/xxxxxxxxxxx # 290
+
+xxxxxxxxxxxG # 290
+
+xxxxxxxxxx9/ # 289
+
+xxxxxxxxxx9- # 288
+
+xxxxxxxxx9/x # 279
+
+xxxxxxxxx8/x # 278
+
+xxxxxxxxx8/9 # 277
+
+xxxxxxxxx8/8 # 276
+
+xxx9/xxxxxxxx # 279
+
+G/G/G/G/G/G/G/G/G/G/G # 100
+
+xxxxxxxxxxG/ # 280
+
+xxxxxxxxxxG- # 270
+
+xxxxxxxxxxG9 # 279
+
+xxxxxxxxx9/G # 269
+
+xxxxxxxxx9/1 # 270
+
+xxxxxxxxxG- # 240
+
+xxxxxxxxx9- # 267
+
+xxx9-xxxxxxxx # 267
+
+xxxxxxxxxG/x # 270
+
+xxxxxxxxxG/9 # 269
+
+xxxxxxxxxG/G # 260
+
+# eof test
