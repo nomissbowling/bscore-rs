@@ -1,4 +1,4 @@
-#![doc(html_root_url = "https://docs.rs/bscore/0.1.1")]
+#![doc(html_root_url = "https://docs.rs/bscore/0.1.2")]
 /// bscore bowling score for Rust
 ///
 

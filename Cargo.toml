@@ -1,10 +1,10 @@
 [package]
 name = "bscore"
-version = "0.1.1" # change with html_root_url in lib.rs
+version = "0.1.2" # change with html_root_url in lib.rs
 edition = "2021"
 authors = ["nomissbowling <nomissbowling@yahoo.co.jp>"]
 
-description = "bowling score for Rust"
+description = "bowling score library for Rust"
 keywords = ["bowling", "score", "bscore"]
 categories = ["game-development", "game-engines", "games"]
 license = "MIT"
