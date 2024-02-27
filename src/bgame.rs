@@ -1,4 +1,5 @@
 //! bgame
+//!
 
 use std::fmt;
 use std::error::Error;
@@ -38,9 +39,9 @@ impl BFrame {
   }
 
   /// calc
-  /// q: VecDeque BFrame
-  /// f: frame num
-  /// Result: score (single frame)
+  /// - q: VecDeque BFrame
+  /// - f: frame num
+  /// - Result: score (single frame)
   pub fn calc(&self, q: &VecDeque<BFrame>, f: usize) ->
     Result<i32, Box<dyn Error>> {
     let mut p = self.f;
@@ -65,10 +66,10 @@ impl BFrame {
   }
 
   /// c (to char as &str)
-  /// q: VecDeque BFrame
-  /// f: frame num
-  /// p: phase (0: first, 1: second, 2: after xx)
-  /// Result: char of single throw
+  /// - q: VecDeque BFrame
+  /// - f: frame num
+  /// - p: phase (0: first, 1: second, 2: after xx)
+  /// - Result: char of single throw
   pub fn c(&self, q: &VecDeque<BFrame>, f: usize, p: i32) -> &str {
     if f < 9 && p == 2 { return ""; }
     let dum = BFrame::new();
@@ -101,8 +102,8 @@ impl BFrame {
   }
 
   /// d (display)
-  /// q: VecDeque BFrame
-  /// Result: string of single frame
+  /// - q: VecDeque BFrame
+  /// - Result: string of single frame
   pub fn d(&self, q: &VecDeque<BFrame>) -> Result<String, Box<dyn Error>> {
     Ok((0..3).into_iter().map(|p|
       self.c(q, self.n, p)).collect::<Vec<_>>().join(""))
@@ -132,8 +133,8 @@ impl BGame {
   }
 
   /// construct BFrame and append to vecdeque
-  /// p: mut phase (false: first throw, true: second throw)
-  /// d: decimal pins
+  /// - p: mut phase (false: first throw, true: second throw)
+  /// - d: decimal pins
   pub fn frm(&mut self, p: &mut bool, d: i32) {
     let mut w: BFrame;
     if !*p {
@@ -152,7 +153,7 @@ impl BGame {
   }
 
   /// calc score
-  /// Result: score
+  /// - Result: score
   pub fn calc_score(&mut self) -> Result<i32, Box<dyn Error>> {
     let mut p = 0i32;
     let mut s: Vec<String> = vec![];
@@ -175,9 +176,9 @@ impl BGame {
 }
 
 /// bscore
-/// txt: single line (trim comments etc)
-/// mode: false (normal), true (shift score when extra frames)
-/// Result: [single] or [multi] scores
+/// - txt: single line (trim comments etc)
+/// - mode: false (normal), true (shift score when extra frames)
+/// - Result: [single] or [multi] scores
 pub fn bscore(txt: &str, mode: bool) -> Result<Vec<i32>, Box<dyn Error>> {
   // println!("{}", txt);
   let mut g = BGame::new();
@@ -195,20 +196,26 @@ pub fn bscore(txt: &str, mode: bool) -> Result<Vec<i32>, Box<dyn Error>> {
     }
   }
   let mut v: Vec<i32> = vec![];
+  let mut first = true;
   loop {
-    if let Some(f) = g.q.get(9) {
-      if let Ok(_) = f.calc(&g.q, 9) { () } else { break; }
-    } else { break; }
+    let f = match g.q.get(9) {
+    None => if first { return Err("too few frames".into()); } else { break; },
+    Some(f) => f
+    };
+    let _ = match f.calc(&g.q, 9) {
+    Err(e) => if first { return Err(e); } else { break; },
+    Ok(p) => p
+    };
     v.push(g.calc_score()?);
     if !mode { break; }
-    if let Some(_) = g.q.pop_front() { () } else { break; }
+    if let Some(_) = g.q.pop_front() { first = false; } else { break; }
   }
   Ok(v)
 }
 
 /// parse lines
-/// mode: false (normal), true (shift score when extra frames)
-/// f: io::Stdin or File (trait io::Read)
+/// - mode: false (normal), true (shift score when extra frames)
+/// - f: io::Stdin or File (trait io::Read)
 pub fn parselines<T: Read>(mode: bool, f: T) -> Result<(), Box<dyn Error>> {
   let mut rdr = BufReader::new(f);
   let mut r = String::new();
@@ -226,8 +233,8 @@ pub fn parselines<T: Read>(mode: bool, f: T) -> Result<(), Box<dyn Error>> {
 }
 
 /// bowling score
-/// mode: false (normal), true (shift score when extra frames)
-/// fname: file name or "" from io::stdin()
+/// - mode: false (normal), true (shift score when extra frames)
+/// - fname: file name or "" from io::stdin()
 pub fn bowling_score(mode: bool, fname: &str) -> Result<(), Box<dyn Error>> {
   match fname {
   "" => parselines(mode, io::stdin()),

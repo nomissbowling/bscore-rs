@@ -1,14 +1,16 @@
-#![doc(html_root_url = "https://docs.rs/bscore/0.1.2")]
-/// bscore bowling score for Rust
-///
+#![doc(html_root_url = "https://docs.rs/bscore/0.1.3")]
+//! bscore bowling score library for Rust
+//!
 
 pub mod bgame;
 
+/// test with [-- --nocapture] or [-- --show-output]
 #[cfg(test)]
 mod tests {
   use super::*;
   use bgame::{bowling_score, bscore};
 
+  /// test scores
   #[test]
   fn test_scores() {
     assert_eq!(bscore("G/G/G/G/G/G/G/G/G/G/G", false).unwrap(), [100]);
