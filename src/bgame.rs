@@ -7,6 +7,32 @@ use std::fs::File;
 use std::io::{self, Read, BufRead, BufReader};
 use std::collections::VecDeque;
 
+/// BScore
+#[derive(Debug)]
+pub struct BScore {
+  /// score
+  pub s: Vec<String>,
+  /// pin
+  pub p: i32
+}
+
+/// Display
+impl fmt::Display for BScore {
+  /// format
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(f, "{}", self.s.iter().map(|l|
+      format!("{}\x0A", l)).collect::<Vec<_>>().join(""))
+  }
+}
+
+/// BScore
+impl BScore {
+  /// constructor
+  pub fn new(s: Vec<String>, p: i32) -> BScore {
+    BScore{s, p}
+  }
+}
+
 /// BFrame
 #[derive(Debug, Clone)]
 pub struct BFrame {
@@ -154,7 +180,7 @@ impl BGame {
 
   /// calc score
   /// - Result: score
-  pub fn calc_score(&mut self) -> Result<i32, Box<dyn Error>> {
+  pub fn calc_score(&mut self) -> Result<BScore, Box<dyn Error>> {
     let mut p = 0i32;
     let mut s: Vec<String> = vec![];
     for i in 0..self.q.len() { // not use enumerate (i, f) to avoid iter_mut
@@ -168,18 +194,29 @@ impl BGame {
       *self.q.get_mut(i).ok_or("not found")? = f; // must be after access to f
       if i == 9 { break; }
     }
-    println!("{}", s.into_iter().collect::<Vec<_>>().join(" "));
-    println!("{}", (0..10).into_iter().map(|i|
-      format!("{:3}", self.q[i].p)).collect::<Vec<_>>().join(" "));
-    Ok(p)
+    Ok(BScore::new(vec![
+      s.into_iter().collect::<Vec<_>>().join(" "),
+      (0..10).into_iter().map(|i|
+        format!("{:3}", self.q[i].p)).collect::<Vec<_>>().join(" ")
+    ], p))
   }
 }
 
 /// bscore
 /// - txt: single line (trim comments etc)
 /// - mode: false (normal), true (shift score when extra frames)
-/// - Result: [single] or [multi] scores
+/// - Result: [`single`] or [`multi`] scores
 pub fn bscore(txt: &str, mode: bool) -> Result<Vec<i32>, Box<dyn Error>> {
+  let scores = getscore(txt, mode)?;
+  for s in &scores { print!("{}", s); }
+  Ok(scores.iter().map(|s| s.p).collect())
+}
+
+/// get score
+/// - txt: single line (trim comments etc)
+/// - mode: false (normal), true (shift score when extra frames)
+/// - Result: [`single`] or [`multi`] scores
+pub fn getscore(txt: &str, mode: bool) -> Result<Vec<BScore>, Box<dyn Error>> {
   // println!("{}", txt);
   let mut g = BGame::new();
   let mut p = false;
@@ -195,7 +232,7 @@ pub fn bscore(txt: &str, mode: bool) -> Result<Vec<i32>, Box<dyn Error>> {
       else { g.frm(&mut p, 10); }
     }
   }
-  let mut v: Vec<i32> = vec![];
+  let mut v: Vec<BScore> = vec![];
   let mut first = true;
   loop {
     let f = match g.q.get(9) {
