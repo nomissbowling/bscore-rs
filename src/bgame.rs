@@ -33,6 +33,49 @@ impl BScore {
   }
 }
 
+/// Disp
+trait Disp {
+  /// format
+  fn disp(&self, f: &mut fmt::Formatter, p: bool) -> fmt::Result;
+}
+
+/// Disp for Vec BScore
+impl Disp for Vec<BScore> {
+  /// disp format
+  fn disp(&self, f: &mut fmt::Formatter, p: bool) -> fmt::Result {
+    write!(f, "{}", self.iter().map(|s|
+      match p {
+      false => s.to_string(),
+      true => format!("{}{}\x0A", s, s.p)
+      }).collect::<Vec<_>>().join(""))
+  }
+}
+
+/// VecBScore
+#[derive(Debug)]
+pub struct VecBScore {
+  /// scores Vec BScore
+  pub v: Vec<BScore>,
+  /// pin flag (false: only s, true: s and p)
+  pub p: bool
+}
+
+/// Display
+impl fmt::Display for VecBScore {
+  /// format
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    self.v.disp(f, self.p)
+  }
+}
+
+/// VecBScore
+impl VecBScore {
+  /// constructor
+  pub fn new(v: Vec<BScore>) -> VecBScore {
+    VecBScore{v, p: false}
+  }
+}
+
 /// BFrame
 #[derive(Debug, Clone)]
 pub struct BFrame {
@@ -208,15 +251,15 @@ impl BGame {
 /// - Result: [`single`] or [`multi`] scores
 pub fn bscore(txt: &str, mode: bool) -> Result<Vec<i32>, Box<dyn Error>> {
   let scores = getscore(txt, mode)?;
-  for s in &scores { print!("{}", s); }
-  Ok(scores.iter().map(|s| s.p).collect())
+  print!("{}", scores);
+  Ok(scores.v.iter().map(|s| s.p).collect())
 }
 
 /// get score
 /// - txt: single line (trim comments etc)
 /// - mode: false (normal), true (shift score when extra frames)
 /// - Result: [`single`] or [`multi`] scores
-pub fn getscore(txt: &str, mode: bool) -> Result<Vec<BScore>, Box<dyn Error>> {
+pub fn getscore(txt: &str, mode: bool) -> Result<VecBScore, Box<dyn Error>> {
   // println!("{}", txt);
   let mut g = BGame::new();
   let mut p = false;
@@ -247,7 +290,7 @@ pub fn getscore(txt: &str, mode: bool) -> Result<Vec<BScore>, Box<dyn Error>> {
     if !mode { break; }
     if let Some(_) = g.q.pop_front() { first = false; } else { break; }
   }
-  Ok(v)
+  Ok(VecBScore::new(v))
 }
 
 /// parse lines
