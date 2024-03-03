@@ -13,15 +13,18 @@ pub struct BScore {
   /// score
   pub s: Vec<String>,
   /// pin
-  pub p: i32
+  pub p: i32,
+  /// flag show pin (false: only s, true: s and p)
+  pub f: bool
 }
 
 /// Display
 impl fmt::Display for BScore {
   /// format
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    write!(f, "{}", self.s.iter().map(|l|
-      format!("{}\x0A", l)).collect::<Vec<_>>().join(""))
+    let r = write!(f, "{}", self.s.iter().map(|l|
+      format!("{}\x0A", l)).collect::<Vec<_>>().join(""));
+    if self.f { write!(f, "{}\x0A", self.p) } else { r }
   }
 }
 
@@ -29,25 +32,22 @@ impl fmt::Display for BScore {
 impl BScore {
   /// constructor
   pub fn new(s: Vec<String>, p: i32) -> BScore {
-    BScore{s, p}
+    BScore{s, p, f: false}
   }
 }
 
 /// Disp
 trait Disp {
   /// format
-  fn disp(&self, f: &mut fmt::Formatter, p: bool) -> fmt::Result;
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result;
 }
 
 /// Disp for Vec BScore
 impl Disp for Vec<BScore> {
-  /// disp format
-  fn disp(&self, f: &mut fmt::Formatter, p: bool) -> fmt::Result {
+  /// format
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     write!(f, "{}", self.iter().map(|s|
-      match p {
-      false => s.to_string(),
-      true => format!("{}{}\x0A", s, s.p)
-      }).collect::<Vec<_>>().join(""))
+      s.to_string()).collect::<Vec<_>>().join(""))
   }
 }
 
@@ -55,16 +55,14 @@ impl Disp for Vec<BScore> {
 #[derive(Debug)]
 pub struct VecBScore {
   /// scores Vec BScore
-  pub v: Vec<BScore>,
-  /// pin flag (false: only s, true: s and p)
-  pub p: bool
+  pub v: Vec<BScore>
 }
 
 /// Display
 impl fmt::Display for VecBScore {
   /// format
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    self.v.disp(f, self.p)
+    self.v.fmt(f)
   }
 }
 
@@ -72,7 +70,18 @@ impl fmt::Display for VecBScore {
 impl VecBScore {
   /// constructor
   pub fn new(v: Vec<BScore>) -> VecBScore {
-    VecBScore{v, p: false}
+    VecBScore{v}
+  }
+
+  /// set flag show pin (false: only s, true: s and p)
+  pub fn f(&mut self, f: bool) -> &VecBScore {
+    for s in &mut self.v { s.f = f; }
+    self
+  }
+
+  /// get as Vec i32 (copy)
+  pub fn g(&self) -> Vec<i32> {
+    self.v.iter().map(|s| s.p).collect()
   }
 }
 
@@ -252,7 +261,7 @@ impl BGame {
 pub fn bscore(txt: &str, mode: bool) -> Result<Vec<i32>, Box<dyn Error>> {
   let scores = getscore(txt, mode)?;
   print!("{}", scores);
-  Ok(scores.v.iter().map(|s| s.p).collect())
+  Ok(scores.g())
 }
 
 /// get score
